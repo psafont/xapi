@@ -1,5 +1,5 @@
-%global package_speccommit abbbcf083e63e75c01a1a0804385b36fb6bde1c5
-%global package_srccommit v25.33.1
+%global package_speccommit 946fbf9f0d3dc55db79b8f70fcc3877050e18b3f
+%global package_srccommit v26.1.0.38.g946fbf9f0
 
 # This matches the location where xen installs the ocaml libraries
 %global _ocamlpath %{_libdir}/ocaml
@@ -25,8 +25,8 @@
 
 Summary: xapi - xen toolstack for XCP
 Name:    xapi
-Version: 25.33.1
-Release: 2.3%{?xsrel}%{?dist}
+Version: 26.1.0.38.g946fbf9f0
+Release: 1.1%{?xsrel}%{?dist}
 Group:   System/Hypervisor
 License: LGPL-2.1-or-later WITH OCaml-LGPL-linking-exception
 URL:  http://www.xen.org
