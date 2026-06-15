@@ -1,0 +1,39 @@
+From 8b526e7b478819745ff2722fc99251e472eed968 Mon Sep 17 00:00:00 2001
+From: Pau Ruiz Safont <pau.safont@vates.tech>
+Date: Fri, 12 Jun 2026 10:04:35 +0100
+Subject: [PATCH] xapi_vm_snapshot: Fail VM.revert when a VDI.revert actually
+ fails
+
+In case where there's an error while reverting on the Storage Backend,
+the state of the SR might become unstable, and a recovery using the
+clone method for reverting might introduce bigger issues. Instead stop
+the revert immediately.
+
+The cases where ignoring the errors is acceptable is when either the SR
+does not advertise support for VDI_REVERT, and when the SR does not
+implement revert for a particular VDI. for example, if the SR implements
+the revert for only some of the formats it implements.
+
+Signed-off-by: Pau Ruiz Safont <pau.safont@vates.tech>
+---
+ ocaml/xapi/xapi_vm_snapshot.ml | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/ocaml/xapi/xapi_vm_snapshot.ml b/ocaml/xapi/xapi_vm_snapshot.ml
+index 0f4324b27..95764a6c4 100644
+--- a/ocaml/xapi/xapi_vm_snapshot.ml
++++ b/ocaml/xapi/xapi_vm_snapshot.ml
+@@ -274,7 +274,12 @@ let revert_vbds ~__context ~rpc ~session_id ~snapshot ~vm =
+         try
+           Client.VDI.revert ~rpc ~session_id ~snapshot ;
+           true
+-        with _ -> false
++        with
++        | Api_errors.(Server_error (e, _))
++        when e = Api_errors.sr_operation_not_supported
++             || e = Api_errors.unimplemented_in_sm_backend
++        ->
++          false
+       )
+       snap_disks_all
+   in
